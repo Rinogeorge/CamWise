@@ -90,7 +90,7 @@ class _OverviewPageState extends State<OverviewPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Overview rrr'),
+        title: const Text('Overview'),
         centerTitle: true,
         backgroundColor:  Color(0xFF4AAEE7),
       ),
