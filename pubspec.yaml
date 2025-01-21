@@ -44,7 +44,8 @@ dependencies:
   fl_chart: ^0.69.2
   flutter_staggered_animations: ^1.1.1
   flashy_tab_bar2: ^0.0.10
-
+  slide_action: ^0.0.2
+  lottie: ^2.0.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

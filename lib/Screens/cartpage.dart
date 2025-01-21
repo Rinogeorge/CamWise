@@ -78,131 +78,219 @@ class _CartPageState extends State<CartPage> {
   }
 
   // Checkout method - Prepare and navigate to SellDetailsPage with invoice data
-  Future<void> checkout() async {
-    final TextEditingController nameController = TextEditingController();
-    final TextEditingController phoneController = TextEditingController();
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Customer Details'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: 'Name'),
-              ),
-              TextField(
-                controller: phoneController,
-                decoration: const InputDecoration(labelText: 'Phone Number'),
-                keyboardType: TextInputType.phone,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                // Validate input
-                final customerName = nameController.text.trim();
-                final customerPhone = phoneController.text.trim();
+Future<void> checkout() async {
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
 
-                if (customerName.isEmpty || customerPhone.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please fill all details')),
-                  );
-                  return;
-                }
-
-                Navigator.of(context).pop(); // Close the dialog
-
-                // Save the cart data with customer details
-                try {
-                  final cartProductsList = await cartProducts;
-
-                  if (cartProductsList.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Cart is empty')),
-                    );
-                    return;
-                  }
-
-                  final invoiceModels = cartProductsList.map((product) {
-                    final quantity = cartQuantities[product.id!] ?? 1;
-                    return InvoiceModel(
-                      squantity: quantity,
-                      id: product.id,
-                      customerName: customerName,
-                      customerPhone: customerPhone,
-                      products: [product],
-                      amount: product.sellingrate?.toDouble() ?? 0.0,
-                      purchaseDate: DateTime.now(),
-                      totalAmount:
-                          (product.sellingrate?.toDouble() ?? 0.0) * quantity,
-                    );
-                  }).toList();
-
-                  final invoiceBox =
-                      await Hive.openBox<InvoiceModel>('invoiceBox');
-                  final productBox =
-                      await Hive.openBox<Productmodel>('product_db');
-
-                  for (var invoice in invoiceModels) {
-                    await invoiceBox.add(invoice);
-                  }
-
-                  for (var product in cartProductsList) {
-                    final quantity = cartQuantities[product.id!] ?? 1;
-                    final updatedProduct = productBox.get(product.id);
-
-                    if (updatedProduct != null) {
-                      updatedProduct.stock =
-                          (updatedProduct.stock ?? 0) - quantity;
-                      await productBox.put(updatedProduct.id, updatedProduct);
-                    }
-                  }
-
-                  // Add notification to Hive
-                  await CartDatabase.clearCart();
-                  final totalAmount = invoiceModels.fold(0.0,
-                      (sum, invoice) => sum + (invoice.totalAmount ?? 0.0));
-                  addNotification(
-                      'Sale Completed',
-                      'A sale was completed with customer: $customerName',
-                      customerName,
-                      totalAmount);
-
-                  // Navigate to Sell Details Page
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const SellDetailsPage(),
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.0),
+        ),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Customer Details',
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
                     ),
-                  );
-                } catch (e) {
-                  if (kDebugMode) {
-                    print('Error during checkout: $e');
-                  }
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Error: Unable to complete checkout')),
-                  );
-                }
-              },
-              child: const Text('Done'),
+                  ),
+                  const SizedBox(height: 16.0),
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      labelText: 'Name',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      prefixIcon: const Icon(Icons.person),
+                    ),
+                  ),
+                  const SizedBox(height: 12.0),
+                  TextField(
+                    controller: phoneController,
+                    decoration: InputDecoration(
+                      labelText: 'Phone Number',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      prefixIcon: const Icon(Icons.phone),
+                    ),
+                    keyboardType: TextInputType.phone,
+                  ),
+                  const SizedBox(height: 20.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 12.0, horizontal: 20.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Close the dialog
+                        },
+                        child: const Text(
+                          'Cancel',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.greenAccent.shade700,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 12.0, horizontal: 20.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
+                        onPressed: () async {
+                          await _handleCheckout(
+                            nameController.text.trim(),
+                            phoneController.text.trim(),
+                            context,
+                          );
+                        },
+                        child: const Text(
+                          'Done',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
-        );
-      },
+        ),
+      );
+    },
+  );
+}
+
+Future<void> _handleCheckout(
+    String customerName, String customerPhone, BuildContext context) async {
+  // Input validation
+  if (customerName.isEmpty || customerPhone.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Please fill in all details'),
+      ),
+    );
+    return;
+  }
+
+  Navigator.of(context).pop(); // Close dialog
+
+  try {
+    final cartProductsList = await cartProducts;
+
+    if (cartProductsList.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Cart is empty'),
+        ),
+      );
+      return;
+    }
+
+    // Prepare invoice data
+    final invoiceModels = cartProductsList.map((product) {
+      final quantity = cartQuantities[product.id!] ?? 1;
+      return InvoiceModel(
+        squantity: quantity,
+        id: product.id,
+        customerName: customerName,
+        customerPhone: customerPhone,
+        products: [product],
+        amount: product.sellingrate?.toDouble() ?? 0.0,
+        purchaseDate: DateTime.now(),
+        totalAmount: (product.sellingrate?.toDouble() ?? 0.0) * quantity,
+      );
+    }).toList();
+
+    // Save invoice data to the database
+    final invoiceBox = await Hive.openBox<InvoiceModel>('invoiceBox');
+    final productBox = await Hive.openBox<Productmodel>('product_db');
+
+    for (var invoice in invoiceModels) {
+      await invoiceBox.add(invoice);
+    }
+
+    for (var product in cartProductsList) {
+      final quantity = cartQuantities[product.id!] ?? 1;
+      final updatedProduct = productBox.get(product.id);
+
+      if (updatedProduct != null) {
+        updatedProduct.stock = (updatedProduct.stock ?? 0) - quantity;
+        await productBox.put(updatedProduct.id, updatedProduct);
+      }
+    }
+
+    // Clear the cart after saving
+    await CartDatabase.clearCart();
+
+    final totalAmount = invoiceModels.fold(
+      0.0,
+      (sum, invoice) => sum + (invoice.totalAmount ?? 0.0),
+    );
+
+    // Send a notification about the sale
+    addNotification(
+      'Sale Completed',
+      'A sale was completed with customer: $customerName',
+      customerName,
+      totalAmount,
+    );
+
+    // Navigate with a slide animation
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const SellDetailsPage(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          var offsetAnimation = animation.drive(tween);
+
+          return SlideTransition(
+            position: offsetAnimation,
+            child: child,
+          );
+        },
+      ),
+    );
+  } catch (e) {
+    if (kDebugMode) {
+      print('Error during checkout: $e');
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Error: Unable to complete checkout'),
+      ),
     );
   }
+}
+
+
 
   double calculateTotalAmount(List<Productmodel> products) {
     double total = 0.0;
