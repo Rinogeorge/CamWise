@@ -78,7 +78,7 @@ flutter:
     - lib/assets/sellback.jpg
     - lib/assets/Profile.jpg
     - lib/assets/check background.jpeg
-    - lib/assets/Gif.mp4
+    - lib/assets/Splash.pnj.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

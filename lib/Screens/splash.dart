@@ -42,20 +42,26 @@ class _ScreenSplashState extends State<ScreenSplash>
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        backgroundColor: const Color.fromARGB(255, 220, 243, 251),
         extendBody: true,
         extendBodyBehindAppBar: true,
         resizeToAvoidBottomInset: false,
         body: FadeTransition(
           opacity: _animation,
-          child: Container(
-            width: double.maxFinite,
-            height: double.maxFinite,
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/Rino-designstyle-kiddo-m.png'),
+          child: Padding(
+            padding: const EdgeInsets.all(50),
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              alignment: Alignment.center,
+              child: FadeTransition(opacity: _animation,child: FittedBox(
                 fit: BoxFit.cover,
-              ),
-            ),
+                child: Image.asset('lib/assets/Splash.pnj.png',
+                  
+                ),
+              ),),
+
+            )
           ),
         ),
       ),

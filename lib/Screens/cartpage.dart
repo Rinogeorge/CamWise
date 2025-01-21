@@ -466,8 +466,8 @@ Widget build(BuildContext context) {
           label: const Text('Buy Now'),
           icon: const Icon(Icons.shopping_cart_checkout),
           backgroundColor: isDisabled
-              ? Colors.grey
-              : const Color(0xFF6A8E4E),
+              ? const Color.fromARGB(255, 159, 213, 215)
+              : const Color.fromARGB(255, 43, 167, 195),
         );
       },
     ),
