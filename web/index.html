@@ -34,5 +34,29 @@
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-analytics.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+  
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyDtF2GKyvVCz6DQyRQwPpP9Xyw9CJPRLwY",
+      authDomain: "camwise-7bed5.firebaseapp.com",
+      projectId: "camwise-7bed5",
+      storageBucket: "camwise-7bed5.firebasestorage.app",
+      messagingSenderId: "127093418967",
+      appId: "1:127093418967:web:e6fa484f9bcb4840abb992",
+      measurementId: "G-XYH4C994S8"
+    };
+  
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+  </script>
 </body>
+
 </html>

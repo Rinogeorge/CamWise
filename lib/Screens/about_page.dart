@@ -37,7 +37,7 @@ class AboutPage extends StatelessWidget {
             Text('- Sales analytics and reporting tools.'),
             SizedBox(height: 20,),
             Text(
-              'Our mission is to empower shop owners with the tools they need to effectively manage their inventory, streamline operations, and optimize business performance.',
+              ' ',
             ),
             SizedBox(height: 20,),
             Text(
